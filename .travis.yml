@@ -10,15 +10,23 @@ python:
 - '3.9'
 services:
 - docker
+jobs:
+  include:
+  - language: python
+    python: '3.9'
+    after_success:
+    - sonar-scanner
 install:
 - pip install virtualenv --upgrade
 - make install
 - make test-install
 script:
 - make test
+- make cover
 deploy:
 - provider: script
-  script: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin && make docker-build && make docker-push
+  script: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+    && make docker-build && make docker-push
   skip_cleanup: true
   on:
     tags: true
@@ -38,3 +46,8 @@ notifications:
     on_failure: change
     rooms:
       secure: FbHzWXjWnpy97v4bmm75T15D0zLBdunEQ3l+w7LqC6cR2nCYOLqcIs2VvwJXXpSbSu9CVzRdMQYfsS7AYi+Fakg93nQOLEtkrhkYiq3yRKXsFVICaJOWPUQbZOdouTKtYZF/0P6FzjdBxbZeD7UW12FKiQ+dL9ncBrgGJExrqFo=
+addons:
+  sonarcloud:
+    organization: twilio
+    token:
+      secure: b9+z9BGYx0tZlDFCo/J9wquffWXU+QqSdpgTh44XlGJulIvQnohEiWVsjwTYi5w7uggKSbFUJYBpMniTHRfRdfW/BNqktsRKeQnVV6jgH8wFkbh5IjbZRI0qcznaNs7nlC94F+HH5JS38lHDLmc/X4QAZjcC8TTbo+VwhA2A1Ks=
